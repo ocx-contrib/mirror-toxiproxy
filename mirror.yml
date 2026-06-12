@@ -75,6 +75,16 @@ skip_prereleases: true
 cascade: true
 build_timestamp: none
 
+# Shopify's GitHub org rejects the Actions installation `GITHUB_TOKEN` on its
+# API (even for public reads) — authenticated `pipeline plan` 403s with exit 69
+# while anonymous reads succeed. The generated discover step hardcodes
+# `GITHUB_TOKEN: secrets.GITHUB_TOKEN`, so we hand-strip that env from the plan
+# step to run discovery unauthenticated (32 releases, 1 list call per poll — well
+# under the 60/h anonymous quota). allow_manual_edits drops the verify-generated
+# drift guard so that edit survives. RE-APPLY the token removal after any
+# `ocx-mirror pipeline generate ci`. See README "Maintenance note".
+allow_manual_edits: true
+
 versions:
   min: "2.12.0"
   new_per_run: 5

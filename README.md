@@ -25,7 +25,20 @@ Upstream ships statically linked Go binaries (no musl/glibc split) and no
 | `metadata*.json`, `CATALOG.md`, `logo.*` | hand | — |
 | `.github/workflows/*.yml` | generated | re-run when `mirror.yml` changes |
 
-CI fails on drift via `ocx-mirror pipeline generate ci --check`.
+## Maintenance note — anonymous discovery
+
+Shopify's GitHub org rejects the Actions installation `GITHUB_TOKEN` on its API
+(authenticated `pipeline plan` returns exit 69; anonymous reads succeed). So:
+
+- `mirror.yml` sets `allow_manual_edits: true` (no `verify-generated.yml` drift
+  guard is emitted).
+- The generated `discover` → *Plan versions* step has its
+  `GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` env **hand-removed** so discovery
+  runs unauthenticated (1 release-list call per poll, under the 60/h quota).
+
+**After any `ocx-mirror pipeline generate ci`, re-remove that `env:` block** —
+the generator re-adds it every time, and with the drift guard gone it won't be
+flagged in CI.
 
 ## Required secrets
 
