@@ -1,0 +1,17 @@
+name: debug-plan
+on:
+  workflow_dispatch:
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: ocx-sh/setup-ocx@8cd2f38eed07c9b79aaed22e61f9ba6b36e967a3  # v1.2.2
+      - name: Plan (debug)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ocx-mirror -l debug pipeline plan --format json || echo "EXIT=$?"
+      - name: Plan (debug, no token)
+        run: |
+          ocx-mirror -l debug pipeline plan --format json || echo "EXIT_NOTOKEN=$?"
